@@ -7,13 +7,6 @@ MainGame::MainGame()
 {
 	_gameState = GameState::PLAY;
 	Display* _gameDisplay = new Display(); //new display
-	Shader fogShader();
-	Shader toonShader();
-	Shader rimShader();
-	Shader geoShader();
-	Shader eMapping();
-	GameObject Asteriod();
-	//Audio* audioDevice();
 }
 
 MainGame::~MainGame()
@@ -38,6 +31,8 @@ void MainGame::initSystems()
 	toonShader.init("..\\res\\shaderToon.vert", "..\\res\\shaderToon.frag"); //new shader
 	rimShader.init("..\\res\\shaderRim.vert", "..\\res\\shaderRim.frag");
 	eMapping.init("..\\res\\shaderReflection.vert", "..\\res\\shaderReflection.frag");
+
+	initModels(asteroid);
 
 	geoShader.initGeo();
 
@@ -147,6 +142,48 @@ void MainGame::processInput()
 	}
 }
 
+void MainGame::initModels(GameObject*& asteroid)
+{
+	for (int i = 0; i < 20; ++i)
+	{
+		float rX = -1.0 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0 - -1.0)));
+		float rY= -1.0 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0 - -1.0)));
+		float rZ = -1.0 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0 - -1.0)));
+
+		asteroid[i].transformPositions(glm::vec3(2.0 * i * rX, 2.0 * i * rY, 2.0 * i * rZ), glm::vec3(rX, rY, rZ), glm::vec3(1.1, 1.1, 1.1));
+		asteroid[i].update(&mesh1);		
+	}
+}
+
+void MainGame::drawAsteriods()
+{
+	texture.Bind(0);
+	eMapping.Bind();
+	linkEmapping();
+
+	for (int i = 0; i < 20; ++i)
+	{
+		asteroid[i].transformPositions(glm::vec3(*asteroid[i].getTM().GetPos()), glm::vec3(asteroid[i].getTM().GetRot()->x + deltaTime, asteroid[i].getTM().GetRot()->y + deltaTime, asteroid[i].getTM().GetRot()->z + deltaTime), glm::vec3(0.1, 0.1, 0.1));
+		asteroid[i].draw(&mesh1);
+		asteroid[i].update(&mesh1);
+		eMapping.Update(asteroid[i].getTM(), myCamera);
+	}
+}
+
+void MainGame::drawSkyBox()
+{
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.textureID);
+
+	counter = counter + 0.02f;
+
+	skybox.draw(&myCamera);
+
+	myCamera.setPos(currentCamPos);
+	glEnableClientState(GL_COLOR_ARRAY);
+	glEnd();
+}
+
 
 bool MainGame::collision(glm::vec3 m1Pos, float m1Rad, glm::vec3 m2Pos, float m2Rad)
 {
@@ -223,9 +260,7 @@ void MainGame::linkRimLighting()
 
 void MainGame::linkEmapping()
 {
-	eMapping.setMat4("projection", myCamera.getProjection());
-	eMapping.setMat4("view", myCamera.getView());
-	eMapping.setMat4("model", asteroid.tObject.GetModel());
+	eMapping.setMat4("model", asteroid[0].getModel());
 	//eMapping.setVec3("cameraPos", myCamera.getPos());
 }
 
@@ -240,37 +275,9 @@ void MainGame::updateDelta()
 void MainGame::drawGame()
 {
 	_gameDisplay.clearDisplay(0.8f, 0.8f, 0.8f, 1.0f); //sets our background colour
-	texture.Bind(0);
-    //geo draw
 	
-	geoShader.Bind();
-	linkGeo();
-
-	asteroid.transformPositions(glm::vec3(10.0, 10.0, 10.0), glm::vec3(0.0, counter + 5 * deltaTime, 0.0), glm::vec3(0.1, 0.1, 0.1));
-	geoShader.Update(asteroid.getTM(), myCamera);
-	
-	asteroid.draw(&mesh1);
-	asteroid.update(&mesh1);
-	asteroid.transformPositions(glm::vec3(0.0, 0.0, 0.0),glm::vec3(0.0, counter + 5*deltaTime, 0.0),glm::vec3(0.1, 0.1, 0.1));
-
-	//e-mapping draw
-	eMapping.Bind();			
-	linkEmapping();
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.textureID);
-	asteroid.draw(&mesh1);
-	asteroid.update(&mesh1);
-
-	counter = counter + 0.02f;
-
-	skybox.draw(&myCamera);	
-
-	myCamera.setPos(currentCamPos);
-	glEnableClientState(GL_COLOR_ARRAY); 
-	glEnd();
-
+	drawAsteriods();
+	drawSkyBox();
 
 	_gameDisplay.swapBuffer();	
-	
-
 } 

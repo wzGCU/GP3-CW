@@ -7,8 +7,6 @@ GameObject::GameObject()
 
 void GameObject::draw(Mesh *mesh)
 {
-	tObject.SetRot(glm::vec3(0.0, 0.0, 0.0));
-	tObject.SetScale(glm::vec3(0.1, 0.1, 0.1));
 	mesh->draw();
 }
 

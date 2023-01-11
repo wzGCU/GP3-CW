@@ -83,3 +83,4 @@ void Mesh::updateSphereData(glm::vec3 pos, float radius)
 	meshSphere.SetRadius(radius);
 }
 
+

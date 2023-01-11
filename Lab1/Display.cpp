@@ -5,8 +5,8 @@ Display::Display()
 {
 	sdlWindow = nullptr; //initialise to generate null access violation for debugging. 
 	glContext = nullptr; //initialise to generate null access violation for debugging. 
-	screenWidth = 1024.0f;
-	screenHeight = 768.0f; 
+	screenWidth = 1600.0f;
+	screenHeight = 1000.0f;
 }
 
 Display::~Display()
@@ -41,19 +41,24 @@ void Display::clearDisplay(float r, float g, float b, float a)
 
 void Display::initDisplay()
 {
+	//Uint32 flags
+
 	SDL_Init(SDL_INIT_EVERYTHING); //initalise everything
 
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8); //Min no of bits used to diplay colour
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);// set up z-buffer
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1); // set up double buffer   
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1); // set up double buffer  
+
+	unsigned int x;
 
 	sdlWindow = SDL_CreateWindow("Game Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, (int)screenWidth, (int)screenHeight, SDL_WINDOW_OPENGL); // create window
 
 	if (sdlWindow == nullptr)
 	{
 		returnError("window failed to create");
+		
 	}
 
 	glContext = SDL_GL_CreateContext(sdlWindow);

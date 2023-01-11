@@ -31,6 +31,10 @@ private:
 	void linkRimLighting();
 	void linkGeo();
 	void linkEmapping();
+	void drawSkyBox();
+	void drawAsteriods();
+
+	void initModels(GameObject*& asteroid);
 	bool collision(glm::vec3 m1Pos, float m1Rad, glm::vec3 m2Pos, float m2Rad);
 
 	void moveCamera();
@@ -50,8 +54,7 @@ private:
 	Shader shaderSkybox;
 	Shader eMapping;
 	Transform transform;
-	Transform transform1;
-	GameObject asteroid;
+	GameObject *asteroid = new GameObject[20];
 	Texture texture;
 
 	glm::vec3 currentCamPos;
