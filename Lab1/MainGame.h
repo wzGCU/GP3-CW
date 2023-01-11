@@ -31,8 +31,13 @@ private:
 	void linkRimLighting();
 	void linkGeo();
 	void linkEmapping();
+
 	void drawSkyBox();
 	void drawAsteriods();
+	void drawShip();
+	void drawMissiles();
+
+	void fireMissiles();
 
 	void initModels(GameObject*& asteroid);
 	bool collision(glm::vec3 m1Pos, float m1Rad, glm::vec3 m2Pos, float m2Rad);
@@ -44,8 +49,9 @@ private:
 
 	Display _gameDisplay;
 	GameState _gameState;
-	Mesh mesh1;
-	Mesh mesh2;
+	Mesh rockMesh;
+	Mesh shipMesh;
+	Mesh missileMesh;
 	Camera myCamera;
 	Shader fogShader;
 	Shader toonShader;
@@ -54,7 +60,9 @@ private:
 	Shader shaderSkybox;
 	Shader eMapping;
 	Transform transform;
-	GameObject *asteroid = new GameObject[20];
+	GameObject* asteroid = new GameObject[20];
+	GameObject* missiles = new GameObject[20];
+	GameObject ship;
 	Texture texture;
 
 	glm::vec3 currentCamPos;

@@ -1,6 +1,7 @@
 #include "Display.h"
 
 
+
 Display::Display()
 {
 	sdlWindow = nullptr; //initialise to generate null access violation for debugging. 
@@ -21,10 +22,10 @@ float Display::getHeight() { return screenHeight; }
 
 void Display::returnError(std::string errorString)
 {
-	std::cout << errorString << std::endl;
-	std::cout << "press any  key to quit...";
+	cout << errorString << std::endl;
+	cout << "press any  key to quit...";
 	int in;
-	std::cin >> in;
+	cin >> in;
 	SDL_Quit();
 }
 
@@ -45,13 +46,15 @@ void Display::initDisplay()
 
 	SDL_Init(SDL_INIT_EVERYTHING); //initalise everything
 
+	Uint32 example = SDL_INIT_EVERYTHING;
+	cout << example << '/n';
+
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8); //Min no of bits used to diplay colour
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);// set up z-buffer
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1); // set up double buffer  
 
-	unsigned int x;
 
 	sdlWindow = SDL_CreateWindow("Game Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, (int)screenWidth, (int)screenHeight, SDL_WINDOW_OPENGL); // create window
 

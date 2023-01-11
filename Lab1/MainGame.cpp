@@ -25,8 +25,9 @@ void MainGame::initSystems()
 	//whistle = audioDevice.loadSound("..\\res\\bang.wav");
 	//backGroundMusic = audioDevice.loadSound("..\\res\\background.wav");
 	texture.load("..\\res\\bricks.jpg");
-	mesh1.loadModel("..\\res\\Rock1.obj");
-	mesh2.loadModel("..\\res\\monkey3.obj");
+	rockMesh.loadModel("..\\res\\Rock1.obj");
+	shipMesh.loadModel("..\\res\\ship.obj");
+	missileMesh.loadModel("..\\res\\R33.obj");
 	fogShader.init("..\\res\\fogShader.vert", "..\\res\\fogShader.frag"); //new shader
 	toonShader.init("..\\res\\shaderToon.vert", "..\\res\\shaderToon.frag"); //new shader
 	rimShader.init("..\\res\\shaderRim.vert", "..\\res\\shaderRim.frag");
@@ -61,7 +62,7 @@ void MainGame::gameLoop()
 		currentCamPos = myCamera.getPos();
 		drawGame();
 		updateDelta();
-		collision(mesh1.getSpherePos(), mesh1.getSphereRadius(), mesh2.getSpherePos(), mesh2.getSphereRadius());
+		collision(rockMesh.getSpherePos(), rockMesh.getSphereRadius(), shipMesh.getSpherePos(), shipMesh.getSphereRadius());
 		//playAudio(backGroundMusic, glm::vec3(0.0f,0.0f,0.0f));
 		//cout << "x: " << myCamera.getPos().x << "y: " << myCamera.getPos().y << "z: " << myCamera.getPos().z << "\n";
 	}
@@ -150,8 +151,15 @@ void MainGame::initModels(GameObject*& asteroid)
 		float rY= -1.0 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0 - -1.0)));
 		float rZ = -1.0 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0 - -1.0)));
 
-		asteroid[i].transformPositions(glm::vec3(2.0 * i * rX, 2.0 * i * rY, 2.0 * i * rZ), glm::vec3(rX, rY, rZ), glm::vec3(1.1, 1.1, 1.1));
-		asteroid[i].update(&mesh1);		
+		asteroid[i].transformPositions(glm::vec3(2.0 * i * rX, 2.0 * i * rY, 2.0 * i * rX), glm::vec3(rX, rY, rZ), glm::vec3(1.1, 1.1, 1.1));
+		asteroid[i].update(&rockMesh);		
+	}
+
+	ship.transformPositions(glm::vec3(0.0, 0.0, -3.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.2,0.2,0.2));
+	
+	for (int i = 0; i < 20; ++i)
+	{
+		missiles[i].setActive(0);
 	}
 }
 
@@ -164,11 +172,50 @@ void MainGame::drawAsteriods()
 	for (int i = 0; i < 20; ++i)
 	{
 		asteroid[i].transformPositions(glm::vec3(*asteroid[i].getTM().GetPos()), glm::vec3(asteroid[i].getTM().GetRot()->x + deltaTime, asteroid[i].getTM().GetRot()->y + deltaTime, asteroid[i].getTM().GetRot()->z + deltaTime), glm::vec3(0.1, 0.1, 0.1));
-		asteroid[i].draw(&mesh1);
-		asteroid[i].update(&mesh1);
+		asteroid[i].draw(&rockMesh);
+		asteroid[i].update(&rockMesh);
 		eMapping.Update(asteroid[i].getTM(), myCamera);
 	}
 }
+
+void MainGame::drawMissiles()
+{
+	texture.Bind(0);
+	rimShader.Bind();
+	linkRimLighting();
+
+	for (int i = 0; i < 20; ++i)
+	{
+		if (missiles[i].getActive())
+		{
+			missiles[i].draw(&missileMesh);
+			missiles[i].update(&missileMesh);
+			rimShader.Update(missiles[i].getTM(), myCamera);
+		}
+	}
+}
+
+void MainGame::fireMissiles() 
+{
+	/** CALL THIS FROM processInput()
+	* Set the missle transform to the ship transform ONCE (initial conditions)
+	* Set the missle to active (check it is not already active)
+	* Update the tranform to move the missle along its forward vector(more advanced, use seek to target)
+	* check for asteroid collision
+	* handle asteroid collision
+	*/
+}
+
+void MainGame::drawShip()
+{
+	toonShader.Bind();
+	linkToon();
+
+	ship.draw(&shipMesh);
+	ship.update(&shipMesh);
+	toonShader.Update(ship.getTM(), myCamera);
+}
+
 
 void MainGame::drawSkyBox()
 {
@@ -249,7 +296,7 @@ void MainGame::linkGeo()
 void MainGame::linkRimLighting()
 {
 	glm::vec3 camDir;
-	camDir = mesh2.getSpherePos() - myCamera.getPos();
+	camDir = shipMesh.getSpherePos() - myCamera.getPos();
 	camDir = glm::normalize(camDir);
 	rimShader.setMat4("u_pm", myCamera.getProjection());
 	rimShader.setMat4("u_vm", myCamera.getView());
@@ -277,7 +324,9 @@ void MainGame::drawGame()
 	_gameDisplay.clearDisplay(0.8f, 0.8f, 0.8f, 1.0f); //sets our background colour
 	
 	drawAsteriods();
+	drawShip();
 	drawSkyBox();
+	drawMissiles();
 
 	_gameDisplay.swapBuffer();	
 } 
