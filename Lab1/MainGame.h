@@ -32,6 +32,9 @@ private:
 	void linkEmapping();
 	bool collision(glm::vec3 m1Pos, float m1Rad, glm::vec3 m2Pos, float m2Rad);
 
+	void updateDelta();
+	void moveCamera();
+
 	//void playAudio(unsigned int Source, glm::vec3 pos);
 
 	Display _gameDisplay;
@@ -46,12 +49,19 @@ private:
 	Shader shaderSkybox;
 	Shader eMapping;
 	
+
+	glm::vec3 currentCamPos;
+
 	Skybox skybox;
 
 	vector<std::string> faces;
 	
-	//Audio audioDevice;
+	Uint64 NOW = SDL_GetPerformanceCounter();
+	Uint64 LAST = 0;
+	float deltaTime = 0;
 
+	//Audio audioDevice;
+	bool look = true;
 	float counter;
 	unsigned int whistle;
 	unsigned int backGroundMusic;

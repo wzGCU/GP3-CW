@@ -28,6 +28,7 @@ public:
 		return projection * glm::lookAt(pos, pos + forward, up);
 	}
 
+
 	inline glm::mat4 getProjection() const
 	{
 		return projection;
@@ -38,33 +39,63 @@ public:
 		return glm::lookAt(pos, pos + forward, up);
 	}
 
-	//void MoveForward(float amt)
-	//{
-	//	pos += forward * amt;
-	//}
+	void MoveForward(float amt)
+	{
+		pos += -forward * amt;
+	}
 
-	//void MoveRight(float amt)
-	//{
-	//	pos += glm::cross(up, forward) * amt;
-	//}
+	void MoveBack(float amt)
+	{
+		pos += forward * amt;
+	}
 
-	//void Pitch(float angle)
-	//{
-	//	glm::vec3 right = glm::normalize(glm::cross(up, forward));
+	void MoveDown(float amt)
+	{
+		pos -= up * amt;
+	}
 
-	//	forward = glm::vec3(glm::normalize(glm::rotate(angle, right) * glm::vec4(forward, 0.0)));
-	//	up = glm::normalize(glm::cross(forward, right));
-	//}
+	void MoveUp(float amt)
+	{
+		pos += up * amt;
+	}
 
-	//void RotateY(float angle)
-	//{
-	//	static const glm::vec3 UP(0.0f, 1.0f, 0.0f);
+	void MoveRight(float amt)
+	{
+		pos += glm::cross(up, forward) * amt;
+	}
 
-	//	glm::mat4 rotation = glm::rotate(angle, UP);
+	void MoveLeft(float amt)
+	{
+		pos -= glm::cross(up, forward) * amt;
+	}
 
-	//	forward = glm::vec3(glm::normalize(rotation * glm::vec4(forward, 0.0)));
-	//	up = glm::vec3(glm::normalize(rotation * glm::vec4(up, 0.0)));
-	//}
+	void setLook(glm::vec3 modelPos)
+	{
+		forward = glm::vec3(glm::normalize(modelPos - pos));
+	}
+
+	void setPos(glm::vec3 modelPos)
+	{
+		pos = modelPos;
+	}
+
+	void Pitch(float angle)
+	{
+		glm::vec3 right = glm::normalize(glm::cross(up, forward));
+
+		forward = glm::vec3(glm::normalize(glm::rotate(angle, right) * glm::vec4(forward, 0.0)));
+		up = glm::normalize(glm::cross(forward, right));
+	}
+
+	void RotateY(float angle)
+	{
+		static const glm::vec3 UP(0.0f, 1.0f, 0.0f);
+
+		glm::mat4 rotation = glm::rotate(angle, UP);
+
+		forward = glm::vec3(glm::normalize(rotation * glm::vec4(forward, 0.0)));
+		up = glm::vec3(glm::normalize(rotation * glm::vec4(up, 0.0)));
+	}
 
 protected:
 private:

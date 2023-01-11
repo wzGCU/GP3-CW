@@ -4,6 +4,7 @@
 Display::Display()
 {
 	sdlWindow = nullptr; //initialise to generate null access violation for debugging. 
+	glContext = nullptr; //initialise to generate null access violation for debugging. 
 	screenWidth = 1024.0f;
 	screenHeight = 768.0f; 
 }
@@ -63,6 +64,7 @@ void Display::initDisplay()
 	}
 
 	GLenum error = glewInit();
+
 	if (error != GLEW_OK)
 	{
 		returnError("GLEW failed to initialise");

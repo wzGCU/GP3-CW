@@ -14,6 +14,8 @@ public:
 	void initDisplay();
 	void swapBuffer();
 	void clearDisplay(float r, float g, float b, float a);
+	
+	SDL_Window* getWindow(){return sdlWindow;}
 
 	float getWidth();
 	float getHeight();
