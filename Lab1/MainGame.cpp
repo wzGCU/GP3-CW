@@ -3,10 +3,6 @@
 #include <iostream>
 #include <string>
 
-
-Transform transform; 
-Transform transform1;
-
 MainGame::MainGame()
 {
 	_gameState = GameState::PLAY;
@@ -16,6 +12,7 @@ MainGame::MainGame()
 	Shader rimShader();
 	Shader geoShader();
 	Shader eMapping();
+	GameObject Asteriod();
 	//Audio* audioDevice();
 }
 
@@ -34,8 +31,8 @@ void MainGame::initSystems()
 	_gameDisplay.initDisplay(); 
 	//whistle = audioDevice.loadSound("..\\res\\bang.wav");
 	//backGroundMusic = audioDevice.loadSound("..\\res\\background.wav");
-	
-	mesh1.loadModel("..\\res\\monkey3.obj");
+	texture.load("..\\res\\bricks.jpg");
+	mesh1.loadModel("..\\res\\Rock1.obj");
 	mesh2.loadModel("..\\res\\monkey3.obj");
 	fogShader.init("..\\res\\fogShader.vert", "..\\res\\fogShader.frag"); //new shader
 	toonShader.init("..\\res\\shaderToon.vert", "..\\res\\shaderToon.frag"); //new shader
@@ -44,18 +41,18 @@ void MainGame::initSystems()
 
 	geoShader.initGeo();
 
-	myCamera.initCamera(glm::vec3(0, 0, -5), 70.0f, (float)_gameDisplay.getWidth()/_gameDisplay.getHeight(), 0.01f, 1000.0f);
+	myCamera.initCamera(glm::vec3(0, 0, -50), 70.0f, (float)_gameDisplay.getWidth()/_gameDisplay.getHeight(), 0.01f, 1000.0f);
 
 	counter = 1.0f;
 
 	vector<std::string> faces
 	{
-		"..\\res\\skybox\\right.jpg",
-		"..\\res\\skybox\\left.jpg",
-		"..\\res\\skybox\\top.jpg",
-		"..\\res\\skybox\\bottom.jpg",
-		"..\\res\\skybox\\front.jpg",
-		"..\\res\\skybox\\back.jpg"
+		"..\\res\\skybox\\right.png",
+		"..\\res\\skybox\\left.png",
+		"..\\res\\skybox\\top.png",
+		"..\\res\\skybox\\bottom.png",
+		"..\\res\\skybox\\front.png",
+		"..\\res\\skybox\\back.png"
 	};
 
 	skybox.init(faces);
@@ -75,82 +72,80 @@ void MainGame::gameLoop()
 	}
 }
 
+void MainGame::processInput()
+{
+	SDL_Event evnt;
 
-
-	void MainGame::processInput()
+	while (SDL_PollEvent(&evnt)) //get and process events
 	{
-		SDL_Event evnt;
-
-		while (SDL_PollEvent(&evnt)) //get and process events
+		switch (evnt.type)
 		{
-			switch (evnt.type)
+		case SDL_MOUSEWHEEL:
+			myCamera.MoveBack(evnt.wheel.y);
+			break;
+		default:
+			break;
+		case SDL_MOUSEBUTTONDOWN:
+			switch (evnt.button.button)
 			{
-			case SDL_MOUSEWHEEL:
-				myCamera.MoveBack(evnt.wheel.y);
+			case SDL_BUTTON_LEFT:
+				//SDL_ShowSimpleMessageBox(0, "Mouse", "Left button was pressed!", _gameDisplay.getWindow());
+				break;
+			case SDL_BUTTON_RIGHT:
+				//SDL_ShowSimpleMessageBox(0, "Mouse", "Right button was pressed!", _gameDisplay.getWindow());
+				break;
+			case SDL_BUTTON_MIDDLE:
+				break;
+			default:
+				//SDL_ShowSimpleMessageBox(0, "Mouse", "Some other button was pressed!", window);
+				break;
+			}
+		case SDL_KEYDOWN:
+			/* Check the SDLKey values and move change the coords */
+			switch (evnt.key.keysym.sym)
+			{
+			case SDLK_a:
+				transform.SetPos(glm::vec3(transform.GetPos()->x + 1.0f*deltaTime, transform.GetPos()->y, 0.0));
+				//cout << myCamera.getPos().x;
+				break;
+			case SDLK_w:
+				transform.SetPos(glm::vec3(transform.GetPos()->x, transform.GetPos()->y + 1.0f*deltaTime, 0.0));
+				break;
+			case SDLK_s:
+				transform.SetPos(glm::vec3(transform.GetPos()->x, transform.GetPos()->y - 1.0f*deltaTime, 0.0));
+				break;
+			case SDLK_d:
+				transform.SetPos(glm::vec3(transform.GetPos()->x - 1.0f*deltaTime, transform.GetPos()->y, 0.0));
+				break;
+			case SDLK_LEFT:
+				myCamera.MoveLeft(10.0f*deltaTime);
+				//cout << myCamera.getPos().x;
+				break;
+			case SDLK_RIGHT:
+				myCamera.MoveRight(10.0f*deltaTime);
+				break;
+			case SDLK_UP:
+				myCamera.MoveUp(1.0f);
+				break;
+			case SDLK_DOWN:
+				myCamera.MoveDown(1.0f);
+				break;
+			case SDLK_SPACE:
+				if (look)
+					look = false;
+				else
+					look = true;
 				break;
 			default:
 				break;
-			case SDL_MOUSEBUTTONDOWN:
-				switch (evnt.button.button)
-				{
-				case SDL_BUTTON_LEFT:
-					//SDL_ShowSimpleMessageBox(0, "Mouse", "Left button was pressed!", _gameDisplay.getWindow());
-					break;
-				case SDL_BUTTON_RIGHT:
-					//SDL_ShowSimpleMessageBox(0, "Mouse", "Right button was pressed!", _gameDisplay.getWindow());
-					break;
-				case SDL_BUTTON_MIDDLE:
-					break;
-				default:
-					//SDL_ShowSimpleMessageBox(0, "Mouse", "Some other button was pressed!", window);
-					break;
-				}
-			case SDL_KEYDOWN:
-				/* Check the SDLKey values and move change the coords */
-				switch (evnt.key.keysym.sym)
-				{
-				case SDLK_a:
-					transform.SetPos(glm::vec3(transform.GetPos()->x + 1.0f * deltaTime, transform.GetPos()->y, 0.0));
-					//cout << myCamera.getPos().x;
-					break;
-				case SDLK_w:
-					transform.SetPos(glm::vec3(transform.GetPos()->x, transform.GetPos()->y + 1.0f * deltaTime, 0.0));
-					break;
-				case SDLK_s:
-					transform.SetPos(glm::vec3(transform.GetPos()->x, transform.GetPos()->y - 1.0f * deltaTime, 0.0));
-					break;
-				case SDLK_d:
-					transform.SetPos(glm::vec3(transform.GetPos()->x - 1.0f * deltaTime, transform.GetPos()->y, 0.0));
-					break;
-				case SDLK_LEFT:
-					myCamera.MoveLeft(1.0f * deltaTime);
-					//cout << myCamera.getPos().x;
-					break;
-				case SDLK_RIGHT:
-					myCamera.MoveRight(1.0f * deltaTime);
-					break;
-				case SDLK_UP:
-					myCamera.MoveUp(1.0f);
-					break;
-				case SDLK_DOWN:
-					myCamera.MoveDown(1.0f);
-					break;
-				case SDLK_SPACE:
-					if (look)
-						look = false;
-					else
-						look = true;
-					break;
-				default:
-					break;
-				case SDL_QUIT:
-					_gameState = GameState::EXIT;
-					break;
-				}
+			case SDL_QUIT:
+				_gameState = GameState::EXIT;
+				break;
 			}
-
 		}
+
 	}
+}
 
 
 bool MainGame::collision(glm::vec3 m1Pos, float m1Rad, glm::vec3 m2Pos, float m2Rad)
@@ -230,8 +225,8 @@ void MainGame::linkEmapping()
 {
 	eMapping.setMat4("projection", myCamera.getProjection());
 	eMapping.setMat4("view", myCamera.getView());
-	eMapping.setMat4("model", transform.GetModel());
-	eMapping.setVec3("cameraPos", myCamera.getPos());
+	eMapping.setMat4("model", asteroid.tObject.GetModel());
+	//eMapping.setVec3("cameraPos", myCamera.getPos());
 }
 
 void MainGame::updateDelta()
@@ -245,49 +240,32 @@ void MainGame::updateDelta()
 void MainGame::drawGame()
 {
 	_gameDisplay.clearDisplay(0.8f, 0.8f, 0.8f, 1.0f); //sets our background colour
-	//linkFogShader();
-	//linkToon();
-	//linkRimLighting();
-
-	Texture texture("..\\res\\bricks.jpg"); //load texture
-	Texture texture1("..\\res\\water.jpg"); //load texture
-	//texture1.Bind(0);
-	transform1.SetPos(glm::vec3(-sinf(counter)*5, -sinf(counter)-5, 0.0));
-	transform1.SetRot(glm::vec3(0.0, 0.0, 0.0));
-	transform1.SetScale(glm::vec3(0.6, 0.6, 0.6));
-	//geo draw
+	texture.Bind(0);
+    //geo draw
+	
 	geoShader.Bind();
 	linkGeo();
-	geoShader.Update(transform1, myCamera);
-	mesh1.draw();
-	mesh1.updateSphereData(*transform1.GetPos(), 0.62f);
 
+	asteroid.transformPositions(glm::vec3(10.0, 10.0, 10.0), glm::vec3(0.0, counter + 5 * deltaTime, 0.0), glm::vec3(0.1, 0.1, 0.1));
+	geoShader.Update(asteroid.getTM(), myCamera);
+	
+	asteroid.draw(&mesh1);
+	asteroid.update(&mesh1);
+	asteroid.transformPositions(glm::vec3(0.0, 0.0, 0.0),glm::vec3(0.0, counter + 5*deltaTime, 0.0),glm::vec3(0.1, 0.1, 0.1));
 
-	transform.SetRot(glm::vec3(0.0, counter * 5, 0.0));
-	transform.SetScale(glm::vec3(0.6, 0.6, 0.6));
 	//e-mapping draw
 	eMapping.Bind();			
 	linkEmapping();
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.textureID);
-	mesh2.draw();
-	mesh2.updateSphereData(*transform.GetPos(), 0.62f);
+	asteroid.draw(&mesh1);
+	asteroid.update(&mesh1);
 
 	counter = counter + 0.02f;
 
 	skybox.draw(&myCamera);	
 
-	if (look)
-	{
-		myCamera.setLook(mesh1.getSpherePos());
-		myCamera.setPos(currentCamPos);
-	}
-	else
-	{
-		myCamera.setLook(mesh2.getSpherePos());
-		myCamera.setPos(currentCamPos);
-	}
-
+	myCamera.setPos(currentCamPos);
 	glEnableClientState(GL_COLOR_ARRAY); 
 	glEnd();
 

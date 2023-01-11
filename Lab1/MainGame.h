@@ -8,6 +8,7 @@
 #include "transform.h"
 #include "Audio.h"
 #include "SkyBox.h"
+#include "GameObject.h"
 
 enum class GameState{PLAY, EXIT};
 
@@ -32,8 +33,8 @@ private:
 	void linkEmapping();
 	bool collision(glm::vec3 m1Pos, float m1Rad, glm::vec3 m2Pos, float m2Rad);
 
-	void updateDelta();
 	void moveCamera();
+	void updateDelta();
 
 	//void playAudio(unsigned int Source, glm::vec3 pos);
 
@@ -48,7 +49,10 @@ private:
 	Shader geoShader;
 	Shader shaderSkybox;
 	Shader eMapping;
-	
+	Transform transform;
+	Transform transform1;
+	GameObject asteroid;
+	Texture texture;
 
 	glm::vec3 currentCamPos;
 
@@ -56,14 +60,14 @@ private:
 
 	vector<std::string> faces;
 	
-	Uint64 NOW = SDL_GetPerformanceCounter();
-	Uint64 LAST = 0;
-	float deltaTime = 0;
-
 	//Audio audioDevice;
 	bool look = true;
 	float counter;
 	unsigned int whistle;
 	unsigned int backGroundMusic;
+
+	Uint64 NOW = SDL_GetPerformanceCounter();
+	Uint64 LAST = 0;
+	float deltaTime = 0;
 };
 
