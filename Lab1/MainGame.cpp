@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 
+//using namespace std;
 MainGame::MainGame()
 {
 	_gameState = GameState::PLAY;
@@ -28,6 +29,7 @@ void MainGame::initSystems()
 	rockMesh.loadModel("..\\res\\Rock1.obj");
 	shipMesh.loadModel("..\\res\\R33.obj");
 	missileMesh.loadModel("..\\res\\R33.obj");
+
 	fogShader.init("..\\res\\fogShader.vert", "..\\res\\fogShader.frag"); //new shader
 	toonShader.init("..\\res\\shaderToon.vert", "..\\res\\shaderToon.frag"); //new shader
 	rimShader.init("..\\res\\shaderRim.vert", "..\\res\\shaderRim.frag");
@@ -114,7 +116,13 @@ void MainGame::gameLoop()
 		updateDelta();
 		collision(rockMesh.getSpherePos(), rockMesh.getSphereRadius(), shipMesh.getSpherePos(), shipMesh.getSphereRadius());
 		playAudio(backGroundMusic, glm::vec3(0.0f,0.0f,0.0f));
-		cout << "x: " << myCamera.getPos().x << "y: " << myCamera.getPos().y << "z: " << myCamera.getPos().z << "\n";
+		//position output
+		cout << "x: " << myCamera.getPos().x << ", y: " << myCamera.getPos().y << ", z: " << myCamera.getPos().z << "\n";
+		//collisions loop
+		for (int i = 0; i < sizeof(asteroid); i++)
+		{
+			collision(*asteroid[i].getPos(), asteroid[i].getSphereRadiusinGameObject(&rockMesh) * 3, shipMesh.getSpherePos(), shipMesh.getSphereRadius());
+		}
 	}
 }
 
@@ -135,15 +143,15 @@ void MainGame::processInput()
 			switch (evnt.button.button)
 			{
 			case SDL_BUTTON_LEFT:
-				SDL_ShowSimpleMessageBox(0, "Mouse", "Left button was pressed!", _gameDisplay.getWindow());
+				//SDL_ShowSimpleMessageBox(0, "Mouse", "Left button was pressed!", _gameDisplay.getWindow());
 				break;
 			case SDL_BUTTON_RIGHT:
-				SDL_ShowSimpleMessageBox(0, "Mouse", "Right button was pressed!", _gameDisplay.getWindow());
+				//SDL_ShowSimpleMessageBox(0, "Mouse", "Right button was pressed!", _gameDisplay.getWindow());
 				break;
 			case SDL_BUTTON_MIDDLE:
 				break;
 			default:
-				SDL_ShowSimpleMessageBox(0, "Mouse", "Some other button was pressed!", _gameDisplay.getWindow());
+				//SDL_ShowSimpleMessageBox(0, "Mouse", "Some other button was pressed!", _gameDisplay.getWindow());
 				break;
 			}
 		case SDL_KEYDOWN:
@@ -151,24 +159,29 @@ void MainGame::processInput()
 			switch (evnt.key.keysym.sym)
 			{
 			case SDLK_a:
-				transform.SetPos(glm::vec3(transform.GetPos()->x + 1.0f*deltaTime, transform.GetPos()->y, 0.0));
-				cout << myCamera.getPos().x;
-				break;
-			case SDLK_w:
-				transform.SetPos(glm::vec3(transform.GetPos()->x, transform.GetPos()->y + 1.0f*deltaTime, 0.0));
-				break;
-			case SDLK_s:
-				transform.SetPos(glm::vec3(transform.GetPos()->x, transform.GetPos()->y - 1.0f*deltaTime, 0.0));
+				ship.transformPositions((*ship.getPosition() + xMovement * deltaTime), shipRotation, shipScale);
 				break;
 			case SDLK_d:
-				transform.SetPos(glm::vec3(transform.GetPos()->x - 1.0f*deltaTime, transform.GetPos()->y, 0.0));
+				ship.transformPositions((*ship.getPosition() - xMovement * deltaTime), shipRotation, shipScale);
+				break;
+			case SDLK_w:
+				ship.transformPositions((*ship.getPosition() + yMovement * deltaTime), shipRotation, shipScale);
+				break;
+			case SDLK_s:
+				ship.transformPositions((*ship.getPosition() - yMovement * deltaTime), shipRotation, shipScale);
+				break;
+			case SDLK_e:
+				ship.transformPositions((*ship.getPosition() + glm::vec3(0.0, 0.0, -speed) * deltaTime), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.2, 0.2, 0.2));
+				break;
+			case SDLK_q:
+				ship.transformPositions((*ship.getPosition() + glm::vec3(0.0, 0.0, speed) * deltaTime), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.2, 0.2, 0.2));
 				break;
 			case SDLK_LEFT:
-				myCamera.MoveLeft(10.0f*deltaTime);
+				myCamera.MoveLeft(150.0f*deltaTime);
 				cout << myCamera.getPos().x;
 				break;
 			case SDLK_RIGHT:
-				myCamera.MoveRight(10.0f*deltaTime);
+				myCamera.MoveRight(150.0f*deltaTime);
 				break;
 			case SDLK_UP:
 				myCamera.MoveUp(1.0f);
@@ -181,6 +194,13 @@ void MainGame::processInput()
 					look = false;
 				else
 					look = true;
+				break;
+			case SDLK_BACKSPACE:
+				//Shakes the camera
+				if (shake)
+					shake = false;
+				else
+					shake = true;
 				break;
 			case SDLK_ESCAPE:
 				_gameState = GameState::EXIT;
@@ -205,7 +225,7 @@ void MainGame::initModels(GameObject*& asteroid)
 		float rZ = -1.0 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (1.0 - -1.0)));
 
 		asteroid[i].transformPositions(glm::vec3(2.0 * i * rX, 2.0 * i * rY, 2.0 * i * rX), glm::vec3(rX, rY, rZ), glm::vec3(1.1, 1.1, 1.1));
-		asteroid[i].update(&rockMesh);		
+		asteroid[i].updateAsteroidSphere(&rockMesh);		
 	}
 
 	ship.transformPositions(glm::vec3(0.0, 0.0, -3.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.2,0.2,0.2));
@@ -232,7 +252,7 @@ void MainGame::drawAsteriods()
 	{
 		asteroid[i].transformPositions(glm::vec3(*asteroid[i].getTM().GetPos()), glm::vec3(asteroid[i].getTM().GetRot()->x + deltaTime, asteroid[i].getTM().GetRot()->y + deltaTime, asteroid[i].getTM().GetRot()->z + deltaTime), glm::vec3(0.1, 0.1, 0.1));
 		asteroid[i].draw(&rockMesh);
-		asteroid[i].update(&rockMesh);
+		asteroid[i].updateAsteroidSphere(&rockMesh);
 		eMapping.Update(asteroid[i].getTM(), myCamera);
 	}
 }
@@ -297,8 +317,9 @@ bool MainGame::collision(glm::vec3 m1Pos, float m1Rad, glm::vec3 m2Pos, float m2
 
 	if (distance < (m1Rad + m2Rad))
 	{
-		//audioDevice.setlistener(myCamera.getPos(), m1Pos); //add bool to mesh
-		//playAudio(whistle, m1Pos);
+		audioDevice.setlistener(myCamera.getPos(), m1Pos); //add bool to mesh
+		playAudio(whistle, m1Pos);
+		cout << "collision";
 		return true;
 	}
 	else
@@ -322,9 +343,6 @@ void MainGame::playAudio(unsigned int Source, glm::vec3 pos)
 {
 		audioDevice.playSound(Source, pos);
 }
-//	*/
-
-	
 
 }
 
@@ -429,7 +447,9 @@ void MainGame::renderFBO()
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	FBOShader.Bind();
-	FBOShader.setFloat("time", counter);
+	if(shake)
+	FBOShader.setFloat("time", counter); else
+		FBOShader.setFloat("time", 1);
 	glBindVertexArray(quadVAO);
 	glBindTexture(GL_TEXTURE_2D, CBO);	// use the color attachment texture as the texture of the quad plane
 	glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -445,6 +465,7 @@ void MainGame::drawGame()
 	drawShip();
 	drawSkyBox();
 	drawMissiles();
+	moveCamera();
 
 	unbindFBO();
 
@@ -460,4 +481,10 @@ void MainGame::drawGame()
 	_gameDisplay.swapBuffer();		
 
 } 
+
+void MainGame::moveCamera()
+{
+	myCamera.setLook(shipMesh.getSpherePos());
+	myCamera.setPos(currentCamPos);
+}
 

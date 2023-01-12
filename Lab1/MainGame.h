@@ -91,6 +91,15 @@ private:
 	Audio audioDevice;
 	bool look = true;
 	float counter;
+	bool shake = false;
+
+	double speed = 100;
+	float velocity = 10;
+	glm::vec3 xMovement = glm::vec3(speed, 0.0, 0.0);
+	glm::vec3 yMovement = glm::vec3(0.0, speed, 0.0);
+	glm::vec3 zMovement = glm::vec3(0.0, 0.0, speed);
+	glm::vec3 shipRotation = glm::vec3(0.0, 0.0, 0.0);
+	glm::vec3 shipScale = glm::vec3(0.2, 0.2, 0.2);
 	unsigned int whistle;
 	unsigned int backGroundMusic;
 
