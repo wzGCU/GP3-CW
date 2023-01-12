@@ -26,7 +26,7 @@ void MainGame::initSystems()
 {
 	_gameDisplay.initDisplay(); 
 	whistle = audioDevice.loadSound("..\\res\\bang.wav");
-	//backGroundMusic = audioDevice.loadSound("..\\res\\background.wav");
+	backGroundMusic = audioDevice.loadSound("..\\res\\background.wav");
 	texture.load("..\\res\\bricks.jpg");
 	rockMesh.loadModel("..\\res\\Rock1.obj");
 	shipMesh.loadModel("..\\res\\R33.obj");
@@ -38,7 +38,6 @@ void MainGame::initSystems()
 	eMapping.init("..\\res\\shaderReflection.vert", "..\\res\\shaderReflection.frag");
 	FBOShader.init("..\\res\\FBOShader.vert", "..\\res\\FBOShader.frag");
 	
-	gameAudio.addAudioTrack("..\\res\\background.wav");
 
 	initModels(asteroid);
 
@@ -105,7 +104,6 @@ void MainGame::gameLoop()
 {
 	while (_gameState != GameState::EXIT)
 	{
-		gameAudio.playMusic();
 		processInput();
 		currentCamPos = myCamera.getPos();
 		drawGame();
@@ -452,12 +450,6 @@ void MainGame::renderFBO()
 	glBindVertexArray(quadVAO);
 	glBindTexture(GL_TEXTURE_2D, CBO);	// use the color attachment texture as the texture of the quad plane
 	glDrawArrays(GL_TRIANGLES, 0, 6);
-}
-//Moving the camera to follow the player
-void MainGame::moveCamera()
-{
-	myCamera.setLook(shipMesh.getSpherePos());
-	myCamera.setPos(currentCamPos);
 }
 //Drawing the game
 void MainGame::drawGame()
