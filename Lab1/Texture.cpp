@@ -11,6 +11,7 @@ Texture::Texture()
 
 void Texture::load(const std::string& fileName)
 {
+	textureHandler = 1;
 	int width, height, numComponents; //width, height, and no of components of image
 	unsigned char* imageData = stbi_load((fileName).c_str(), &width, &height, &numComponents, 4); //load the image and store the data
 

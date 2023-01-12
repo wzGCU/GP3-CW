@@ -47,13 +47,20 @@ void MainGame::initSystems()
 	counter = 1.0f;
 
 	vector<std::string> faces
-	{
+	{/*
 		"..\\res\\skybox\\right.png",
 		"..\\res\\skybox\\left.png",
 		"..\\res\\skybox\\top.png",
 		"..\\res\\skybox\\bottom.png",
 		"..\\res\\skybox\\front.png",
 		"..\\res\\skybox\\back.png"
+	*/
+		"..\\res\\skybox\\right1.jpg",
+		"..\\res\\skybox\\left1.jpg",
+		"..\\res\\skybox\\top1.jpg",
+		"..\\res\\skybox\\bottom1.jpg",
+		"..\\res\\skybox\\front1.jpg",
+		"..\\res\\skybox\\back1.jpg"
 	};
 
 	skybox.init(faces);
@@ -63,7 +70,7 @@ void MainGame::createScreenQuad()
 {
 	float quadVertices[] = { 
 		// vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
-		// positions   // texCoords
+		 //positions   // texCoords
 		//-1.0f,  1.0f,  0.0f, 1.0f,
 		//-1.0f, -1.0f,  0.0f, 0.0f,
 		// 1.0f, -1.0f,  1.0f, 0.0f,
@@ -72,14 +79,14 @@ void MainGame::createScreenQuad()
 		// 1.0f, -1.0f,  1.0f, 0.0f,
 		// 1.0f,  1.0f,  1.0f, 1.0f
 
-		// vertex attributes for a quad that fills the half of the screen
-		-0.5f,  0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.0f, 0.0f,
-		 0.5f, -0.5f,  1.0f, 0.0f,
+		//// vertex attributes for a quad that fills the half of the screen
+		-1.0f,  1.0f,  0.0f, 1.0f,
+		-1.0f,  0.25f,  0.0f, 0.0f,
+		-0.25f,  0.25f,  1.0f, 0.0f,
 
-		-0.5f,  0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f,  1.0f, 1.0f
+		-1.0f,  1.0f,  0.0f, 1.0f,
+		-0.25f,  0.25f,  1.0f, 0.0f,
+		-0.25f,  1.0f,  1.0f, 1.0f
 	};
 	// cube VAO
 	glGenVertexArrays(1, &quadVAO);
@@ -88,11 +95,12 @@ void MainGame::createScreenQuad()
 	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0); //stride offset example
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
 }
+
 
 void MainGame::gameLoop()
 {
@@ -125,15 +133,15 @@ void MainGame::processInput()
 			switch (evnt.button.button)
 			{
 			case SDL_BUTTON_LEFT:
-				//SDL_ShowSimpleMessageBox(0, "Mouse", "Left button was pressed!", _gameDisplay.getWindow());
+				SDL_ShowSimpleMessageBox(0, "Mouse", "Left button was pressed!", _gameDisplay.getWindow());
 				break;
 			case SDL_BUTTON_RIGHT:
-				//SDL_ShowSimpleMessageBox(0, "Mouse", "Right button was pressed!", _gameDisplay.getWindow());
+				SDL_ShowSimpleMessageBox(0, "Mouse", "Right button was pressed!", _gameDisplay.getWindow());
 				break;
 			case SDL_BUTTON_MIDDLE:
 				break;
 			default:
-				//SDL_ShowSimpleMessageBox(0, "Mouse", "Some other button was pressed!", window);
+				SDL_ShowSimpleMessageBox(0, "Mouse", "Some other button was pressed!", _gameDisplay.getWindow());
 				break;
 			}
 		case SDL_KEYDOWN:
@@ -142,7 +150,7 @@ void MainGame::processInput()
 			{
 			case SDLK_a:
 				transform.SetPos(glm::vec3(transform.GetPos()->x + 1.0f*deltaTime, transform.GetPos()->y, 0.0));
-				//cout << myCamera.getPos().x;
+				cout << myCamera.getPos().x;
 				break;
 			case SDLK_w:
 				transform.SetPos(glm::vec3(transform.GetPos()->x, transform.GetPos()->y + 1.0f*deltaTime, 0.0));
@@ -155,7 +163,7 @@ void MainGame::processInput()
 				break;
 			case SDLK_LEFT:
 				myCamera.MoveLeft(10.0f*deltaTime);
-				//cout << myCamera.getPos().x;
+				cout << myCamera.getPos().x;
 				break;
 			case SDLK_RIGHT:
 				myCamera.MoveRight(10.0f*deltaTime);
@@ -171,6 +179,9 @@ void MainGame::processInput()
 					look = false;
 				else
 					look = true;
+				break;
+			case SDLK_ESCAPE:
+				_gameState = GameState::EXIT;
 				break;
 			default:
 				break;
@@ -208,6 +219,12 @@ void MainGame::drawAsteriods()
 	texture.Bind(0);
 	eMapping.Bind();
 	linkEmapping();
+
+	glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0
+	glBindTexture(GL_TEXTURE_2D, texture.getID());
+
+	glActiveTexture(GL_TEXTURE0 + 1); // Texture unit 1
+	glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.getID());
 
 	for (int i = 0; i < 20; ++i)
 	{
@@ -402,11 +419,12 @@ void MainGame::generateFBO(float w, float h)
 
 void MainGame::renderFBO()
 {
-	glDisable(GL_DEPTH_TEST);
+	
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // set clear color to white (not really necessary actually, since we won't be able to see behind the quad anyways)
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	FBOShader.Bind();
+	FBOShader.setFloat("time", counter);
 	glBindVertexArray(quadVAO);
 	glBindTexture(GL_TEXTURE_2D, CBO);	// use the color attachment texture as the texture of the quad plane
 	glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -415,9 +433,9 @@ void MainGame::renderFBO()
 void MainGame::drawGame()
 {
 	_gameDisplay.clearDisplay(0.8f, 0.8f, 0.8f, 1.0f); //sets our background colour	
-	
+
 	bindFBO();
-	
+
 	drawAsteriods();
 	drawShip();
 	drawSkyBox();
@@ -426,6 +444,13 @@ void MainGame::drawGame()
 	unbindFBO();
 
 	renderFBO();
+
+	glEnable(GL_DEPTH_TEST);
+
+	drawAsteriods();
+	drawShip();
+	drawSkyBox();
+	drawMissiles();
 	
 	_gameDisplay.swapBuffer();		
 

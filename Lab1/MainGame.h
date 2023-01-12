@@ -78,7 +78,9 @@ private:
 	GLuint RBO;
 	GLuint CBO;
 
-	unsigned int quadVAO, quadVBO;
+	GLuint quadVAO;
+	GLuint quadVBO;
+
 
 	glm::vec3 currentCamPos;
 

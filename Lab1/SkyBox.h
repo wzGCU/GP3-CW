@@ -11,6 +11,7 @@ class Skybox
 public:
 	void init(std::vector<std::string> faces);
 	void draw(Camera* camera);
+	GLuint getID() { return textureID; }
 
 	unsigned int textureID;
 	unsigned int skyboxVAO;
