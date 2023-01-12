@@ -61,12 +61,12 @@ public:
 
 	void MoveRight(float amt)
 	{
-		pos += glm::cross(up, forward) * amt;
+		pos -= glm::cross(up, forward) * amt;
 	}
 
 	void MoveLeft(float amt)
 	{
-		pos -= glm::cross(up, forward) * amt;
+		pos += glm::cross(up, forward) * amt;
 	}
 
 	void setLook(glm::vec3 modelPos)
@@ -95,6 +95,12 @@ public:
 
 		forward = glm::vec3(glm::normalize(rotation * glm::vec4(forward, 0.0)));
 		up = glm::vec3(glm::normalize(rotation * glm::vec4(up, 0.0)));
+	}
+
+
+	void setForward(glm::vec3 fwd)
+	{
+		forward = fwd;
 	}
 
 protected:
