@@ -100,6 +100,8 @@
     <ClInclude Include="transform.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\res\FBOShader.frag" />
+    <None Include="..\res\FBOShader.vert" />
     <None Include="..\res\fogShader.frag" />
     <None Include="..\res\fogShader.vert" />
     <None Include="..\res\shaderGeoText.frag" />

@@ -45,6 +45,13 @@ private:
 	void moveCamera();
 	void updateDelta();
 
+	void createScreenQuad();
+
+	void generateFBO(float w, float h);
+	void bindFBO();
+	void unbindFBO();
+	void renderFBO();
+
 	//void playAudio(unsigned int Source, glm::vec3 pos);
 
 	Display _gameDisplay;
@@ -59,11 +66,19 @@ private:
 	Shader geoShader;
 	Shader shaderSkybox;
 	Shader eMapping;
+	Shader FBOShader;
+
 	Transform transform;
 	GameObject* asteroid = new GameObject[20];
 	GameObject* missiles = new GameObject[20];
 	GameObject ship;
 	Texture texture;
+
+	GLuint FBO;
+	GLuint RBO;
+	GLuint CBO;
+
+	unsigned int quadVAO, quadVBO;
 
 	glm::vec3 currentCamPos;
 
