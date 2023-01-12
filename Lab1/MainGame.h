@@ -6,9 +6,9 @@
 #include "Mesh.h"
 #include "Texture.h"
 #include "transform.h"
+#include "Audio.h"
 #include "SkyBox.h"
 #include "GameObject.h"
-#include "Audio.h"
 
 enum class GameState{PLAY, EXIT};
 
@@ -67,7 +67,6 @@ private:
 	Shader shaderSkybox;
 	Shader eMapping;
 	Shader FBOShader;
-	unsigned int backGroundMusic;
 
 	Transform transform;
 	GameObject* asteroid = new GameObject[20];
@@ -96,14 +95,14 @@ private:
 
 	double speed = 100;
 	float velocity = 10;
-
 	glm::vec3 xMovement = glm::vec3(speed, 0.0, 0.0);
 	glm::vec3 yMovement = glm::vec3(0.0, speed, 0.0);
 	glm::vec3 zMovement = glm::vec3(0.0, 0.0, speed);
 	glm::vec3 shipRotation = glm::vec3(0.0, 0.0, 0.0);
 	glm::vec3 shipScale = glm::vec3(0.2, 0.2, 0.2);
-
 	unsigned int whistle;
+	unsigned int backGroundMusic;
+
 	Uint64 NOW = SDL_GetPerformanceCounter();
 	Uint64 LAST = 0;
 	float deltaTime = 0;
