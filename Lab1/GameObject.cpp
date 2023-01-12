@@ -23,6 +23,7 @@ void GameObject::update(Mesh* mesh)
 void GameObject::updateAsteroidSphere(Mesh* mesh)
 {
 	mesh->updateSphereData(*tObject.GetPos(), 1.0f);
+
 }
 void GameObject::transformPositions(glm::vec3 pos, glm::vec3 rot, glm::vec3 scale)
 {

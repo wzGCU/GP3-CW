@@ -31,7 +31,7 @@ private:
 	Transform tObject;
 	Camera cameraIn;
 	Shader shaderIn;
-	
+
 	glm::vec3 pos;
 	bool active;
 	float counter = 0.0f;

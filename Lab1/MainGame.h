@@ -1,14 +1,16 @@
 #pragma once
 #include <SDL\SDL.h>
+#include <SDL/SDL_mixer.h>
 #include <GL/glew.h>
 #include "Display.h" 
 #include "Shader.h"
 #include "Mesh.h"
 #include "Texture.h"
 #include "transform.h"
-#include "Audio.h"
 #include "SkyBox.h"
 #include "GameObject.h"
+#include "SDLAudio.h"
+#include "Audio.h"
 
 enum class GameState{PLAY, EXIT};
 
@@ -67,6 +69,7 @@ private:
 	Shader shaderSkybox;
 	Shader eMapping;
 	Shader FBOShader;
+	SDLAudio gameAudio;
 
 	Transform transform;
 	GameObject* asteroid = new GameObject[20];
@@ -100,9 +103,11 @@ private:
 	glm::vec3 zMovement = glm::vec3(0.0, 0.0, speed);
 	glm::vec3 shipRotation = glm::vec3(0.0, 0.0, 0.0);
 	glm::vec3 shipScale = glm::vec3(0.2, 0.2, 0.2);
-	unsigned int whistle;
-	unsigned int backGroundMusic;
 
+	unsigned int whistle;
+	double speed = 100;
+	float counter;
+	float velocity = 10;
 	Uint64 NOW = SDL_GetPerformanceCounter();
 	Uint64 LAST = 0;
 	float deltaTime = 0;

@@ -3,7 +3,9 @@
 #include <iostream>
 #include <string>
 
+
 //using namespace std;
+
 MainGame::MainGame()
 {
 	_gameState = GameState::PLAY;
@@ -24,7 +26,7 @@ void MainGame::initSystems()
 {
 	_gameDisplay.initDisplay(); 
 	whistle = audioDevice.loadSound("..\\res\\bang.wav");
-	backGroundMusic = audioDevice.loadSound("..\\res\\background.wav");
+	//backGroundMusic = audioDevice.loadSound("..\\res\\background.wav");
 	texture.load("..\\res\\bricks.jpg");
 	rockMesh.loadModel("..\\res\\Rock1.obj");
 	shipMesh.loadModel("..\\res\\R33.obj");
@@ -35,6 +37,8 @@ void MainGame::initSystems()
 	rimShader.init("..\\res\\shaderRim.vert", "..\\res\\shaderRim.frag");
 	eMapping.init("..\\res\\shaderReflection.vert", "..\\res\\shaderReflection.frag");
 	FBOShader.init("..\\res\\FBOShader.vert", "..\\res\\FBOShader.frag");
+	
+	gameAudio.addAudioTrack("..\\res\\background.wav");
 
 	initModels(asteroid);
 
@@ -56,15 +60,6 @@ void MainGame::initSystems()
 		"..\\res\\skybox\\bottom.png",
 		"..\\res\\skybox\\front.png",
 		"..\\res\\skybox\\back.png"
-	/*
-	
-		"..\\res\\skybox\\right1.jpg",
-		"..\\res\\skybox\\left1.jpg",
-		"..\\res\\skybox\\top1.jpg",
-		"..\\res\\skybox\\bottom1.jpg",
-		"..\\res\\skybox\\front1.jpg",
-		"..\\res\\skybox\\back1.jpg"
-	*/
 	};
 
 	skybox.init(faces);
@@ -110,6 +105,7 @@ void MainGame::gameLoop()
 {
 	while (_gameState != GameState::EXIT)
 	{
+		gameAudio.playMusic();
 		processInput();
 		currentCamPos = myCamera.getPos();
 		drawGame();
@@ -119,10 +115,12 @@ void MainGame::gameLoop()
 		//position output
 		cout << "x: " << myCamera.getPos().x << ", y: " << myCamera.getPos().y << ", z: " << myCamera.getPos().z << "\n";
 		//collisions loop
+
 		for (int i = 0; i < sizeof(asteroid); i++)
 		{
 			collision(*asteroid[i].getPos(), asteroid[i].getSphereRadiusinGameObject(&rockMesh) * 3, shipMesh.getSpherePos(), shipMesh.getSphereRadius());
 		}
+
 	}
 }
 
@@ -151,7 +149,7 @@ void MainGame::processInput()
 			case SDL_BUTTON_MIDDLE:
 				break;
 			default:
-				//SDL_ShowSimpleMessageBox(0, "Mouse", "Some other button was pressed!", _gameDisplay.getWindow());
+				//SDL_ShowSimpleMessageBox(0, "Mouse", "Some other button was pressed!", window);
 				break;
 			}
 		case SDL_KEYDOWN:
@@ -185,16 +183,13 @@ void MainGame::processInput()
 				break;
 			case SDLK_UP:
 				myCamera.MoveUp(1.0f);
+				//Moves the camera up
 				break;
 			case SDLK_DOWN:
 				myCamera.MoveDown(1.0f);
+				//Moves the camera down
 				break;
-			case SDLK_SPACE:
-				if (look)
-					look = false;
-				else
-					look = true;
-				break;
+
 			case SDLK_BACKSPACE:
 				//Shakes the camera
 				if (shake)
@@ -202,6 +197,7 @@ void MainGame::processInput()
 				else
 					shake = true;
 				break;
+				
 			case SDLK_ESCAPE:
 				_gameState = GameState::EXIT;
 				break;
@@ -214,8 +210,10 @@ void MainGame::processInput()
 		}
 
 	}
+	//ip.transformPositions(*transform.GetPos(), *ship.getTM().GetRot(), *ship.getTM().GetScale());
 }
 
+//Initialize the asteroids, the ship and the missiles.
 void MainGame::initModels(GameObject*& asteroid)
 {
 	for (int i = 0; i < 20; ++i)
@@ -229,13 +227,13 @@ void MainGame::initModels(GameObject*& asteroid)
 	}
 
 	ship.transformPositions(glm::vec3(0.0, 0.0, -3.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.2,0.2,0.2));
-	
+	//Sets the starting position of the ship
 	for (int i = 0; i < 20; ++i)
 	{
 		missiles[i].setActive(0);
 	}
 }
-
+// Draws the asteroids
 void MainGame::drawAsteriods()
 {
 	texture.Bind(0);
@@ -256,7 +254,7 @@ void MainGame::drawAsteriods()
 		eMapping.Update(asteroid[i].getTM(), myCamera);
 	}
 }
-
+//Draws the missiles.
 void MainGame::drawMissiles()
 {
 	texture.Bind(0);
@@ -284,7 +282,7 @@ void MainGame::fireMissiles()
 	* handle asteroid collision
 	*/
 }
-
+//Draws the ship
 void MainGame::drawShip()
 {
 	toonShader.Bind();
@@ -295,7 +293,7 @@ void MainGame::drawShip()
 	toonShader.Update(ship.getTM(), myCamera);
 }
 
-
+//Draws the skybox
 void MainGame::drawSkyBox()
 {
 	glActiveTexture(GL_TEXTURE2);
@@ -310,16 +308,16 @@ void MainGame::drawSkyBox()
 	glEnd();
 }
 
-
+//Function to detect collision between two objects.
 bool MainGame::collision(glm::vec3 m1Pos, float m1Rad, glm::vec3 m2Pos, float m2Rad)
 {
 	float distance = glm::sqrt((m2Pos.x - m1Pos.x)*(m2Pos.x - m1Pos.x) + (m2Pos.y - m1Pos.y)*(m2Pos.y - m1Pos.y) + (m2Pos.z - m1Pos.z)*(m2Pos.z - m1Pos.z));
 
-	if (distance < (m1Rad + m2Rad))
+	if (distance  < (m1Rad + m2Rad))
 	{
 		audioDevice.setlistener(myCamera.getPos(), m1Pos); //add bool to mesh
 		playAudio(whistle, m1Pos);
-		cout << "collision";
+		cout << " collision ";
 		return true;
 	}
 	else
@@ -327,23 +325,23 @@ bool MainGame::collision(glm::vec3 m1Pos, float m1Rad, glm::vec3 m2Pos, float m2
 		return false;
 	}
 }
-
+//Plays audio
 void MainGame::playAudio(unsigned int Source, glm::vec3 pos)
 {
-
+	
 	ALint state; 
 	alGetSourcei(Source, AL_SOURCE_STATE, &state);
-	
-// Possible values of state
-//	AL_INITIAL
-//	AL_STOPPED
-//	AL_PLAYING
-//	AL_PAUSED
+	/*
+	Possible values of state
+	AL_INITIAL
+	AL_STOPPED
+	AL_PLAYING
+	AL_PAUSED
+	*/
 	if (AL_PLAYING != state)
-{
+	{
 		audioDevice.playSound(Source, pos);
-}
-
+	}
 }
 
 void MainGame::linkFogShader()
@@ -354,12 +352,12 @@ void MainGame::linkFogShader()
 	fogShader.setFloat("minDist", 0.0f);
 	fogShader.setVec3("fogColor", glm::vec3(0.0f, 0.0f, 0.0f));
 }
-
+//Linking the toonShader
 void MainGame::linkToon()
 {
 	toonShader.setVec3("lightDir", glm::vec3(0.5f, 0.5f, 0.5f));
 }
-
+//Linknig the geoShader
 void MainGame::linkGeo()
 {
 	float randX = ((float)rand() / (RAND_MAX));
@@ -372,7 +370,7 @@ void MainGame::linkGeo()
 	// Geom: uniform float time;
 	geoShader.setFloat("time", counter);
 }
-
+//Linking Rim Lightning
 void MainGame::linkRimLighting()
 {
 	glm::vec3 camDir;
@@ -384,13 +382,13 @@ void MainGame::linkRimLighting()
 	rimShader.setMat4("view", myCamera.getView());
 	rimShader.setVec3("lightDir", glm::vec3(0.5f, 0.5f, 0.5f));
 }
-
+//Linking Emapping
 void MainGame::linkEmapping()
 {
 	eMapping.setMat4("model", asteroid[0].getModel());
 	//eMapping.setVec3("cameraPos", myCamera.getPos());
 }
-
+//Updating the delta time.
 void MainGame::updateDelta()
 {
 	LAST = NOW;
@@ -398,7 +396,7 @@ void MainGame::updateDelta()
 
 	deltaTime = (float)((NOW - LAST) / (float)SDL_GetPerformanceFrequency());
 }
-
+//Binding FBO
 void MainGame::bindFBO()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
@@ -406,13 +404,13 @@ void MainGame::bindFBO()
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
 }
-
+//Unbinding FBO
 void MainGame::unbindFBO()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-
+//Generating FBO
 void MainGame::generateFBO(float w, float h)
 {
 	glGenFramebuffers(1, &FBO);
@@ -439,7 +437,7 @@ void MainGame::generateFBO(float w, float h)
 		cout << "FRAMEBUFFER:: Framebuffer is complete!" << endl;
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
-
+//Rendering FBO
 void MainGame::renderFBO()
 {
 	
@@ -448,13 +446,20 @@ void MainGame::renderFBO()
 
 	FBOShader.Bind();
 	if(shake)
-	FBOShader.setFloat("time", counter); else
-		FBOShader.setFloat("time", 1);
+	FBOShader.setFloat("time", counter);
+	else
+	FBOShader.setFloat("time", 1);
 	glBindVertexArray(quadVAO);
 	glBindTexture(GL_TEXTURE_2D, CBO);	// use the color attachment texture as the texture of the quad plane
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
-
+//Moving the camera to follow the player
+void MainGame::moveCamera()
+{
+	myCamera.setLook(shipMesh.getSpherePos());
+	myCamera.setPos(currentCamPos);
+}
+//Drawing the game
 void MainGame::drawGame()
 {
 	_gameDisplay.clearDisplay(0.8f, 0.8f, 0.8f, 1.0f); //sets our background colour	
@@ -477,6 +482,8 @@ void MainGame::drawGame()
 	drawShip();
 	drawSkyBox();
 	drawMissiles();
+	moveCamera();
+		
 	
 	_gameDisplay.swapBuffer();		
 
