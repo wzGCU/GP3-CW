@@ -22,8 +22,8 @@ void MainGame::run()
 void MainGame::initSystems()
 {
 	_gameDisplay.initDisplay(); 
-	//whistle = audioDevice.loadSound("..\\res\\bang.wav");
-	//backGroundMusic = audioDevice.loadSound("..\\res\\background.wav");
+	whistle = audioDevice.loadSound("..\\res\\bang.wav");
+	backGroundMusic = audioDevice.loadSound("..\\res\\background.wav");
 	texture.load("..\\res\\bricks.jpg");
 	rockMesh.loadModel("..\\res\\Rock1.obj");
 	shipMesh.loadModel("..\\res\\R33.obj");
@@ -47,20 +47,22 @@ void MainGame::initSystems()
 	counter = 1.0f;
 
 	vector<std::string> faces
-	{/*
+	{
 		"..\\res\\skybox\\right.png",
 		"..\\res\\skybox\\left.png",
 		"..\\res\\skybox\\top.png",
 		"..\\res\\skybox\\bottom.png",
 		"..\\res\\skybox\\front.png",
 		"..\\res\\skybox\\back.png"
-	*/
+	/*
+	
 		"..\\res\\skybox\\right1.jpg",
 		"..\\res\\skybox\\left1.jpg",
 		"..\\res\\skybox\\top1.jpg",
 		"..\\res\\skybox\\bottom1.jpg",
 		"..\\res\\skybox\\front1.jpg",
 		"..\\res\\skybox\\back1.jpg"
+	*/
 	};
 
 	skybox.init(faces);
@@ -111,8 +113,8 @@ void MainGame::gameLoop()
 		drawGame();
 		updateDelta();
 		collision(rockMesh.getSpherePos(), rockMesh.getSphereRadius(), shipMesh.getSpherePos(), shipMesh.getSphereRadius());
-		//playAudio(backGroundMusic, glm::vec3(0.0f,0.0f,0.0f));
-		//cout << "x: " << myCamera.getPos().x << "y: " << myCamera.getPos().y << "z: " << myCamera.getPos().z << "\n";
+		playAudio(backGroundMusic, glm::vec3(0.0f,0.0f,0.0f));
+		cout << "x: " << myCamera.getPos().x << "y: " << myCamera.getPos().y << "z: " << myCamera.getPos().z << "\n";
 	}
 }
 
@@ -305,23 +307,26 @@ bool MainGame::collision(glm::vec3 m1Pos, float m1Rad, glm::vec3 m2Pos, float m2
 	}
 }
 
-//void MainGame::playAudio(unsigned int Source, glm::vec3 pos)
-//{
-//	
-//	ALint state; 
-//	alGetSourcei(Source, AL_SOURCE_STATE, &state);
-//	/*
-//	Possible values of state
+void MainGame::playAudio(unsigned int Source, glm::vec3 pos)
+{
+
+	ALint state; 
+	alGetSourcei(Source, AL_SOURCE_STATE, &state);
+	
+// Possible values of state
 //	AL_INITIAL
 //	AL_STOPPED
 //	AL_PLAYING
 //	AL_PAUSED
+	if (AL_PLAYING != state)
+{
+		audioDevice.playSound(Source, pos);
+}
 //	*/
-//	if (AL_PLAYING != state)
-//	{
-//		audioDevice.playSound(Source, pos);
-//	}
-//}
+
+	
+
+}
 
 void MainGame::linkFogShader()
 {

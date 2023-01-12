@@ -52,7 +52,7 @@ private:
 	void unbindFBO();
 	void renderFBO();
 
-	//void playAudio(unsigned int Source, glm::vec3 pos);
+	void playAudio(unsigned int Source, glm::vec3 pos);
 
 	Display _gameDisplay;
 	GameState _gameState;
@@ -88,7 +88,7 @@ private:
 
 	vector<std::string> faces;
 	
-	//Audio audioDevice;
+	Audio audioDevice;
 	bool look = true;
 	float counter;
 	unsigned int whistle;
