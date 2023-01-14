@@ -41,7 +41,7 @@ public:
 
 	void MoveForward(float amt)
 	{
-		pos += -forward * amt;
+		pos -= forward * amt;
 	}
 
 	void MoveBack(float amt)

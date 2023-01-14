@@ -31,6 +31,7 @@ void GameObject::transformPositions(glm::vec3 pos, glm::vec3 rot, glm::vec3 scal
 	tObject.SetScale(scale);
 }
 
+
 void GameObject::moveForward(float amt)
 {
 	*tObject.GetPos() += forward * amt;
