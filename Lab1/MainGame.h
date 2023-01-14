@@ -22,104 +22,118 @@ public:
 
 private:
 
-	void initSystems();
-	void processInput();
-	void gameLoop();
-	void drawGame();
+	//Shader Functions
 	void linkFogShader();
 	void linkToon();
 	void linkRimLighting();
 	void linkGeo();
-	void linkEmapping();
+	void linkReflection();
 
-	void drawSkyBox();
-	void drawAsteriods();
-	void drawShip();
-	void drawMissiles();
-
-	void fireMissiles();
-	void updateMissiles();
-
-	void initModels(GameObject*& asteroid);
-	bool collision(glm::vec3 m1Pos, float m1Rad, glm::vec3 m2Pos, float m2Rad);
-
-	void moveCamera();
-	void updateDelta();
-
-	void createScreenQuad();
-
+	//FBO Functions
 	void generateFBO(float w, float h);
 	void bindFBO();
 	void unbindFBO();
 	void renderFBO();
+	void createScreenQuad();
 
+	//Model Functions
+	void drawSkyBox();
+	void drawAsteriods();
+	void drawShip();
+	void drawMissiles();
+	void initModels(GameObject*& asteroids);
+
+	//Audio Functions
 	void playAudio(unsigned int Source, glm::vec3 pos);
+	void playSound(unsigned int Source, glm::vec3 pos);
 
+	//Game Functions
+	void initSystems();
+	void processInput();
+	void gameLoop();
+	void drawGame();
+	void updateDelta();
+	bool checkCollision(glm::vec3 m1Pos, float m1Rad, glm::vec3 m2Pos, float m2Rad);
+	void changeCamera();
+	void victoryActions();
+
+	//Missiles Functions
+	void fireMissiles();
+	void updateMissiles();
+
+	//System variables
 	Display _gameDisplay;
 	GameState _gameState;
-	Mesh rockMesh;
-	Mesh shipMesh;
-	Mesh missileMesh;
 	Camera myCamera;
-	Shader fogShader;
-	Shader toonShader;
-	Shader rimShader;
-	Shader geoShader;
+	Shader shaderFog;
+	Shader shaderToon;
+	Shader shaderRim;
+	Shader shaderGeo;
 	Shader shaderSkybox;
-	Shader eMapping;
-	Shader FBOShader;
-
-	Transform transform;
-	GameObject* asteroid = new GameObject[20];
-	GameObject* missiles = new GameObject[20];
-	GameObject ship;
-	Texture texture;
+	Shader shaderReflection;
+	Shader shaderFBO;
 
 	GLuint FBO;
 	GLuint RBO;
 	GLuint CBO;
-
 	GLuint quadVAO;
 	GLuint quadVBO;
 
-
-	glm::vec3 currentCamPos;
-
 	Skybox skybox;
-
-	vector<std::string> faces;
-	
-	Audio audioDevice;
-	bool look = true;
-	float counter;
-	bool shake = false;
-
-	double speed = 100;
-	float velocity = 10;
-	glm::vec3 xMovement = glm::vec3(speed, 0.0, 0.0);
-	glm::vec3 yMovement = glm::vec3(0.0, speed, 0.0);
-	glm::vec3 zMovement = glm::vec3(0.0, 0.0, speed);
-	glm::vec3 shipRotation = glm::vec3(0.0, 0.0, 0.0);
-	glm::vec3 shipScale = glm::vec3(0.2, 0.2, 0.2);
-	glm::vec3 rockScale = glm::vec3(0.05, 0.05, 0.05);
-	glm::vec3 missileScale = glm::vec3(0.1, 0.1, 0.1);
-	unsigned int boom;
-	unsigned int backGroundMusic;
-
-	int missileLaunchNumber = 0;
-	float missileVelocity = 2;
-	float missileSpeed;
-	float asteroidVelocity = 15;
-	float asteroidSpeed;
-	float shipVelocity = 20;
-	float shipSpeed;
-
-	//int asteroidCamTarget = 0;
-	float cameraVelocity = 15;
-	float cameraSpeed;
 
 	Uint64 NOW = SDL_GetPerformanceCounter();
 	Uint64 LAST = 0;
 	float deltaTime = 0;
+
+	Transform transform;
+	Texture texture;
+
+	Audio audioDevice;
+	float counter;
+
+	glm::vec3 currentCamPosition;
+	glm::vec3 zeroVector = glm::vec3(0.0, 0.0, 0.0);
+
+	unsigned int audioBoom;
+	unsigned int audioBackgroundMusic;
+
+	//Meshes and GameObjects
+	Mesh meshAsteroid;
+	Mesh meshMissile;
+	Mesh meshSpaceship;
+
+	GameObject* asteroids = new GameObject[20];
+	GameObject* missiles = new GameObject[20];
+	GameObject ship;
+
+	//Game Objects Variables
+	float asteroidScaleFloat = 0.05f;
+	glm::vec3 asteroidScale = glm::vec3(asteroidScaleFloat, asteroidScaleFloat, asteroidScaleFloat);
+
+	float missileSpeed = 0.01f;
+	float missileScaleFloat = 0.1f;
+	glm::vec3 missileScale = glm::vec3(missileScaleFloat, missileScaleFloat, missileScaleFloat);
+
+	float shipSpeed = 20;
+	glm::vec3 shipScale = glm::vec3(0.2, 0.2, 0.2);
+
+	glm::vec3 xMovement = glm::vec3(shipSpeed, 0.0, 0.0);
+	glm::vec3 yMovement = glm::vec3(0.0, shipSpeed, 0.0);
+	glm::vec3 zMovement = glm::vec3(0.0, 0.0, shipSpeed);
+
+	//Game Variables
+	bool gameOver;//if gameOver does not allow for shoot
+	int missileLaunchNumber = 0;	//which missile to send
+	bool canShoot = true;			//if can shoot
+	bool shakeCamera = false;		//if the camera will shake (disabled due to possible accessibility issues, can be enabled by changing to true
+	bool smallFilter = true;		//if the FBO filter will be small or big, needs to be changed manually
+
+	bool cameraAsteroidMode = false; //camera mode variable (space vs asteroid focused)
+	int cameraAsteroidCount; //which asteroid should camera focus
+
+	bool first = true; //a boolean used to show the welcome message (could not make it less intrusive way sorry xD)
+
+	int life = 1;//if player hits asteroid the  game  is over
+
 };
 

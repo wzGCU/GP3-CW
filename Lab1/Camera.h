@@ -97,12 +97,6 @@ public:
 		up = glm::vec3(glm::normalize(rotation * glm::vec4(up, 0.0)));
 	}
 
-
-	void setForward(glm::vec3 fwd)
-	{
-		forward = fwd;
-	}
-
 protected:
 private:
 	glm::mat4 projection;
