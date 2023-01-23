@@ -3,7 +3,6 @@
 #include <iostream>
 #include <string>
 
-//using namespace std;
 MainGame::MainGame()
 {
 	_gameState = GameState::PLAY;
@@ -130,7 +129,6 @@ void MainGame::createScreenQuad()
 
 }
 
-
 void MainGame::gameLoop()
 {
 	while (_gameState != GameState::EXIT)
@@ -140,35 +138,11 @@ void MainGame::gameLoop()
 		drawGame();
 		updateDelta();
 		playAudio(audioBackgroundMusic, glm::vec3(0.0f,0.0f,0.0f));
-		//position output
-		//cout << "x: " << myCamera.getPos().x << ", y: " << myCamera.getPos().y << ", z: " << myCamera.getPos().z << "\n";
-		//collisions loop
-		for (int i = 0; i < sizeof(asteroids); i++)
+		if (first) 
 		{
-			if (checkCollision(*asteroids[i].getTPosition(), asteroids[i].getSphereRadiusinGameObject(&meshAsteroid) * 3, meshSpaceship.getSpherePos(), meshSpaceship.getSphereRadius())) 
-			{
-				if(asteroids[i].getActive()){
-					audioDevice.setlistener(myCamera.getPos(), meshSpaceship.getSpherePos());
-					playAudio(audioBoom, meshSpaceship.getSpherePos());
-					shakeCamera = true;
-					life--;
-					if (life == 0) {
-						gameOver = true;
-						SDL_ShowSimpleMessageBox(0, "Space Explorer - GAME OVER", "You lost the game! Press ESC to quit.", _gameDisplay.getWindow());
-
-					}
-				}
-
-			}
+			firstTimeSetup();
 		}
-		if (first) {
-			first = false;
-			for (int i = 0; i < 20; ++i)
-			{
-				missiles[i].setActive(0);
-			}
-			SDL_ShowSimpleMessageBox(0, "Space Explorer", "Welcome to the game! \nDestroy all the asteroids to land on earth and win the game. \n \nCONTROLS:\nShip\nMovement:      W,S,A,D,E,Q - Ship Movement\nShoot Missile:      Space\n\nCamera\nMovement:      Arrow Keys\nSwitch Between Ship and Asteroid Mode:       Middle Mouse Button\nChange Current Asteroid View (in Asteroid Camera Mode):     Left/Right Mouse Button\n", _gameDisplay.getWindow());
-		}
+		checkGameOver();
 	}
 }
 
@@ -180,16 +154,16 @@ void MainGame::processInput()
 	{
 		switch (evnt.type)
 		{
-			/*
-			* Asteroid Camera Mode
-			* Left/Right Mouse Button - Change to next/previous asteroid
-			* Middle Mouse Button - Change camera mode
-			*/
 		case SDL_MOUSEWHEEL:
 			myCamera.MoveBack(evnt.wheel.y*2);
 			break;
 		default:
 			break;
+			/*
+			* Asteroid Camera Mode
+			* Left/Right Mouse Button - Change to next/previous asteroid
+			* Middle Mouse Button - Change camera mode
+			*/
 		case SDL_MOUSEBUTTONDOWN:
 			switch (evnt.button.button)
 			{
@@ -244,18 +218,28 @@ void MainGame::processInput()
 			Camera Movement:
 			Left/Right Arrow - Moving on X axis
 			Up/Down Arrow - Moving on Y axis
+			Shift - Change speed
 			*/
 			case SDLK_LEFT:
-				myCamera.MoveLeft(50.0f*deltaTime);
+				myCamera.MoveLeft(cameraSpeed*deltaTime);
 				break;
 			case SDLK_RIGHT:
-				myCamera.MoveRight(50.0f*deltaTime);
+				myCamera.MoveRight(cameraSpeed*deltaTime);
 				break;
 			case SDLK_UP:
-				myCamera.MoveUp(50.0f*deltaTime);
+				myCamera.MoveUp(cameraSpeed*deltaTime);
 				break;
 			case SDLK_DOWN:
-				myCamera.MoveDown(50.0f*deltaTime);
+				myCamera.MoveDown(cameraSpeed*deltaTime);
+				break;
+			case SDLK_LSHIFT:
+				if (cameraSpeed == 10.0f) {
+					cameraSpeed = 50.0f;
+				}
+				else 
+				{
+					cameraSpeed = 10.0f;
+				}
 				break;
 			/*
 			Action Keys:
@@ -266,7 +250,7 @@ void MainGame::processInput()
 				if (canShoot) {
 					if (missileLaunchNumber == 20) {
 
-						SDL_ShowSimpleMessageBox(0, "VICTORY", "You destroyed all rockets and survived! You got back to earth and now can travel around!", _gameDisplay.getWindow());
+						SDL_ShowSimpleMessageBox(0, "Space Explorer - VICTORY", "You destroyed all rockets and survived! You got back to earth and now can travel around!", _gameDisplay.getWindow());
 						
 					}
 					else
@@ -370,7 +354,7 @@ void MainGame::updateMissiles()
 	{
 	
 		glm::vec3 shootVector = *asteroids[missileLaunchNumber].getTPosition() - *missiles[missileLaunchNumber].getTPosition();
-		glm::vec3 shootVel = normalize(shootVector) * missileSpeed * deltaTime;
+		glm::vec3 shootVel = normalize(shootVector) * missileSpeed; //* deltaTime;
 
 
 		missiles[missileLaunchNumber].moveTo(*missiles[missileLaunchNumber].getTPosition()+shootVel);
@@ -395,6 +379,7 @@ void MainGame::updateMissiles()
 		}
 	}
 }
+
 void MainGame::victoryActions() {
 	cout << "VICTORY!\n";
 	smallFilter = false;
@@ -416,6 +401,38 @@ void MainGame::victoryActions() {
 
 
 	skybox.init(facesLand);
+}
+
+void MainGame::checkGameOver()
+{
+	for (int i = 0; i < sizeof(asteroids); i++)
+	{
+		if (checkCollision(*asteroids[i].getTPosition(), asteroids[i].getSphereRadiusinGameObject(&meshAsteroid) * 3, meshSpaceship.getSpherePos(), meshSpaceship.getSphereRadius()))
+		{
+			if (asteroids[i].getActive()) {
+				audioDevice.setlistener(myCamera.getPos(), meshSpaceship.getSpherePos());
+				playAudio(audioBoom, meshSpaceship.getSpherePos());
+				shakeCamera = true;
+				life--;
+				if (life == 0) {
+					gameOver = true;
+					SDL_ShowSimpleMessageBox(0, "Space Explorer - GAME OVER", "You lost the game! Press ESC to quit.", _gameDisplay.getWindow());
+				}
+			}
+
+		}
+	}
+}
+
+void MainGame::firstTimeSetup() {
+	
+		first = false;
+		for (int i = 0; i < 20; ++i)
+		{
+			missiles[i].setActive(0);
+		}
+		SDL_ShowSimpleMessageBox(0, "Space Explorer", "Welcome to the game! \nDestroy all the asteroids to land on earth and win the game. \n\n* C O N T R O L S *\n\nQuit:\nEscape\n\nS H I P\n\nMovement:\nW, S, A, D, E, Q\n\nShoot Missile:\nSpace\n\n\nC A M E R A\n\nMovement:\nArrow Keys\n\nChange Speed:\nLeft Shift\n\nSwitch Between Ship and Asteroid Mode:\nMiddle Mouse Button\n\nChange Current Asteroid View (in Asteroid Camera Mode):\nLeft/Right Mouse Button", _gameDisplay.getWindow());
+
 }
 
 void MainGame::changeCamera()

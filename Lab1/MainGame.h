@@ -55,7 +55,9 @@ private:
 	void updateDelta();
 	bool checkCollision(glm::vec3 m1Pos, float m1Rad, glm::vec3 m2Pos, float m2Rad);
 	void changeCamera();
+	void firstTimeSetup();
 	void victoryActions();
+	void checkGameOver();
 
 	//Missiles Functions
 	void fireMissiles();
@@ -121,6 +123,7 @@ private:
 	glm::vec3 yMovement = glm::vec3(0.0, shipSpeed, 0.0);
 	glm::vec3 zMovement = glm::vec3(0.0, 0.0, shipSpeed);
 
+	float cameraSpeed = 10.0f;
 	//Game Variables
 	bool gameOver;//if gameOver does not allow for shoot
 	int missileLaunchNumber = 0;	//which missile to send
